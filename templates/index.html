@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Emergency Patient Monitoring</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Smart Emergency Patient Monitoring System</h1>
+    <p>Real-Time Patient Monitoring Dashboard</p>
+
+    <div class="dashboard">
+
+        <div class="card">
+            <h2>❤️ Heart Rate</h2>
+            <div class="value" id="heart">--</div>
+            <p>BPM</p>
+        </div>
+
+        <div class="card">
+            <h2>🫁 SpO2</h2>
+            <div class="value" id="spo2">--</div>
+            <p>%</p>
+        </div>
+
+        <div class="card">
+            <h2>🌡️ Temperature</h2>
+            <div class="value" id="temperature">--</div>
+            <p>°C</p>
+        </div>
+
+    </div>
+
+    <div id="status" class="status">
+        Checking patient condition...
+    </div>
+
+</div>
+
+<script src="/static/script.js"></script>
+
+</body>
+</html>
