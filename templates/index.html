@@ -1,47 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Emergency Patient Monitoring</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>Smart Emergency Patient Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
 
 <div class="container">
 
-    <h1>Smart Emergency Patient Monitoring System</h1>
-    <p>Real-Time Patient Monitoring Dashboard</p>
+    <h1>🚑 Smart Emergency Patient Monitor</h1>
 
-    <div class="dashboard">
+    <p style="text-align:center;">
+        Real-time patient vital signs monitoring
+    </p>
+
+    <div class="vitals">
 
         <div class="card">
             <h2>❤️ Heart Rate</h2>
-            <div class="value" id="heart">--</div>
-            <p>BPM</p>
+            <div class="value" id="heartRate">78 BPM</div>
         </div>
 
         <div class="card">
-            <h2>🫁 SpO2</h2>
-            <div class="value" id="spo2">--</div>
-            <p>%</p>
+            <h2>🫁 SpO₂</h2>
+            <div class="value" id="spo2">98%</div>
         </div>
 
         <div class="card">
             <h2>🌡️ Temperature</h2>
-            <div class="value" id="temperature">--</div>
-            <p>°C</p>
+            <div class="value" id="temperature">36.7 °C</div>
+        </div>
+
+        <div class="card">
+            <h2>💨 Respiratory Rate</h2>
+            <div class="value" id="respiratory">16 /min</div>
         </div>
 
     </div>
 
-    <div id="status" class="status">
-        Checking patient condition...
+    <div class="alert" id="alert">
+        ✅ Patient status: Stable
     </div>
 
 </div>
-
-<script src="/static/script.js"></script>
 
 </body>
 </html>
