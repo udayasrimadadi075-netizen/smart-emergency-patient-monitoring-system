@@ -3,49 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Emergency Patient Monitor</title>
+    <title>Smart Emergency Patient Monitoring</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-<div class="container">
+    <header>
+        <h1>Smart Emergency Patient Monitoring System</h1>
+        <p>Real-Time Patient Vital Signs Dashboard</p>
+    </header>
 
-    <h1>🚑 Smart Emergency Patient Monitor</h1>
+    <main class="dashboard">
 
-    <p style="text-align:center;">
-        Real-time patient vital signs monitoring
-    </p>
+        <section class="patient-card">
+            <h2>Patient Monitoring</h2>
+            <p>Patient ID: P001</p>
+            <p>Status: <span id="status">Monitoring</span></p>
+        </section>
 
-    <div class="vitals">
+        <section class="vitals">
 
-        <div class="card">
-            <h2>❤️ Heart Rate</h2>
-            <div class="value" id="heartRate">78 BPM</div>
-        </div>
+            <div class="vital-card">
+                <h3>❤️ Heart Rate</h3>
+                <p><span id="heart-rate">--</span> BPM</p>
+            </div>
 
-        <div class="card">
-            <h2>🫁 SpO₂</h2>
-            <div class="value" id="spo2">98%</div>
-        </div>
+            <div class="vital-card">
+                <h3>🫁 SpO₂</h3>
+                <p><span id="spo2">--</span> %</p>
+            </div>
 
-        <div class="card">
-            <h2>🌡️ Temperature</h2>
-            <div class="value" id="temperature">36.7 °C</div>
-        </div>
+            <div class="vital-card">
+                <h3>🌡️ Temperature</h3>
+                <p><span id="temperature">--</span> °C</p>
+            </div>
 
-        <div class="card">
-            <h2>💨 Respiratory Rate</h2>
-            <div class="value" id="respiratory">16 /min</div>
-        </div>
+            <div class="vital-card">
+                <h3>🫀 Respiratory Rate</h3>
+                <p><span id="respiratory-rate">--</span> breaths/min</p>
+            </div>
 
-    </div>
+        </section>
 
-    <div class="alert" id="alert">
-        ✅ Patient status: Stable
-    </div>
+        <section id="alert-box" class="alert-box">
+            <h2>Emergency Status</h2>
+            <p id="alert-message">Checking patient condition...</p>
+        </section>
 
-</div>
+    </main>
+
+    <script>
+        async function loadVitals() {
+            try {
+                const response = await fetch("/api/vitals");
+                const data = await response.json();
+
+                const patient = data.patient;
+
+                document.getElementById("heart-rate").textContent =
+                    patient.heart_rate;
+
+                document.getElementById("spo2").textContent =
+                    patient.spo2;
+
+                document.getElementById("temperature").textContent =
+                    patient.temperature;
+
+                document.getElementById("respiratory-rate").textContent =
+                    patient.respiratory_rate;
+
+                const status = document.getElementById("status");
+                const alertBox = document.getElementById("alert-box");
+                const alertMessage = document.getElementById("alert-message");
+
+                if (data.emergency) {
+                    status.textContent = "EMERGENCY";
+                    alertMessage.textContent =
+                        "⚠️ " + data.alerts.join(", ");
+                    alertBox.classList.add("emergency");
+                } else {
+                    status.textContent = "Stable";
+                    alertMessage.textContent =
+                        "✅ Patient vital signs are within normal range.";
+                    alertBox.classList.remove("emergency");
+                }
+
+            } catch (error) {
+                document.getElementById("alert-message").textContent =
+                    "Unable to connect to monitoring API.";
+            }
+        }
+
+        loadVitals();
+
+        setInterval(loadVitals, 5000);
+    </script>
 
 </body>
 </html>
