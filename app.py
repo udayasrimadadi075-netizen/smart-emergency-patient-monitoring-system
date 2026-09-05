@@ -3,7 +3,7 @@ from flask import Flask, render_template, jsonify
 app = Flask(__name__)
 
 patient = {
-    "heart_rate": 78,
+    "heart_rate": 130,
     "spo2": 98,
     "temperature": 36.7,
     "respiratory_rate": 16
