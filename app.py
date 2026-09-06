@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
@@ -33,8 +33,39 @@ def home():
     return render_template("index.html")
 
 
-@app.route("/api/vitals")
+@app.route("/api/vitals", methods=["GET", "POST"])
 def vitals():
+
+    global patient
+
+    if request.method == "POST":
+        data = request.get_json()
+
+        if not data:
+            return jsonify({
+                "error": "No data received"
+            }), 400
+
+        required_fields = [
+            "heart_rate",
+            "spo2",
+            "temperature",
+            "respiratory_rate"
+        ]
+
+        for field in required_fields:
+            if field not in data:
+                return jsonify({
+                    "error": f"Missing field: {field}"
+                }), 400
+
+        patient = {
+            "heart_rate": data["heart_rate"],
+            "spo2": data["spo2"],
+            "temperature": data["temperature"],
+            "respiratory_rate": data["respiratory_rate"]
+        }
+
     alerts = check_emergency(patient)
 
     response = {
