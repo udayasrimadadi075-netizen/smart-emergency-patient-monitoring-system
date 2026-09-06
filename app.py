@@ -1,6 +1,9 @@
 from flask import Flask, render_template, jsonify, request
+from database import initialize_database, save_vitals, get_vitals_history
 
 app = Flask(__name__)
+
+initialize_database()
 
 patient = {
     "heart_rate": 78,
@@ -35,16 +38,13 @@ def home():
 
 @app.route("/api/vitals", methods=["GET", "POST"])
 def vitals():
-
     global patient
 
     if request.method == "POST":
         data = request.get_json()
 
         if not data:
-            return jsonify({
-                "error": "No data received"
-            }), 400
+            return jsonify({"error": "No data received"}), 400
 
         required_fields = [
             "heart_rate",
@@ -66,6 +66,18 @@ def vitals():
             "respiratory_rate": data["respiratory_rate"]
         }
 
+        alerts = check_emergency(patient)
+        emergency = len(alerts) > 0
+
+        save_vitals(
+            patient["heart_rate"],
+            patient["spo2"],
+            patient["temperature"],
+            patient["respiratory_rate"],
+            emergency,
+            alerts
+        )
+
     alerts = check_emergency(patient)
 
     response = {
@@ -75,6 +87,12 @@ def vitals():
     }
 
     return jsonify(response)
+
+
+@app.route("/api/history")
+def history():
+    records = get_vitals_history()
+    return jsonify(records)
 
 
 if __name__ == "__main__":
