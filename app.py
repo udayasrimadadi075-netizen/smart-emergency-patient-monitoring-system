@@ -78,7 +78,8 @@ def vitals():
             alerts
         )
 
-    alerts = check_emergency(patient)
+    
+
 
     response = {
         "patient": patient,
