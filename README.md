@@ -1,7 +1,7 @@
 # Smart Emergency Patient Monitoring System
 
 A web-based patient monitoring system built with Python and Flask for
-real-time monitoring of heart rate, SpO2, and body temperature.
+monitoring patient vital signs and detecting critical health conditions.
 
 ## Features
 
