@@ -1,275 +1,118 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
+async function loadVitals() {
+    try {
+        const response = await fetch("/api/vitals");
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+        if (!response.ok) {
+            throw new Error(
+                "Server returned status " + response.status
+            );
+        }
 
-    <title>Smart Emergency Patient Monitoring</title>
+        const data = await response.json();
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
-</head>
+        // Check that patient data exists
+        if (!data.patient) {
+            throw new Error("Patient data not available");
+        }
 
-<body>
+        const patient = data.patient;
 
-    <header>
-        <h1>Smart Emergency Patient Monitoring System</h1>
-        <p>Real-Time Patient Vital Signs Dashboard</p>
-    </header>
 
-    <main class="dashboard">
+        // -----------------------------
+        // Update vital signs
+        // -----------------------------
 
-        <!-- Patient Information -->
-        <section class="patient-card">
+        document.getElementById("heart-rate").textContent =
+            patient.heart_rate;
 
-            <h2>👤 Patient Monitoring</h2>
+        document.getElementById("spo2").textContent =
+            patient.spo2;
 
-            <p>
-                <strong>Patient ID:</strong>
-                P001
-            </p>
+        document.getElementById("temperature").textContent =
+            patient.temperature;
 
-            <p>
-                <strong>Status:</strong>
-                <span id="status">Monitoring</span>
-            </p>
+        document.getElementById("respiratory-rate").textContent =
+            patient.respiratory_rate;
 
-        </section>
 
+        // -----------------------------
+        // Get status elements
+        // -----------------------------
 
-        <!-- Vital Signs -->
-        <section class="vitals">
+        const status =
+            document.getElementById("status");
 
-            <!-- Heart Rate -->
-            <div class="vital-card">
+        const alertBox =
+            document.getElementById("alert-box");
 
-                <h3>❤️ Heart Rate</h3>
+        const alertMessage =
+            document.getElementById("alert-message");
 
-                <p>
-                    <span id="heart-rate">--</span>
-                    BPM
-                </p>
 
-            </div>
+        // -----------------------------
+        // Emergency detection
+        // -----------------------------
 
+        if (data.emergency === true) {
 
-            <!-- SpO2 -->
-            <div class="vital-card">
+            status.textContent = "EMERGENCY";
 
-                <h3>🫁 SpO₂</h3>
-
-                <p>
-                    <span id="spo2">--</span>
-                    %
-                </p>
-
-            </div>
-
-
-            <!-- Temperature -->
-            <div class="vital-card">
-
-                <h3>🌡️ Temperature</h3>
-
-                <p>
-                    <span id="temperature">--</span>
-                    °C
-                </p>
-
-            </div>
-
-
-            <!-- Respiratory Rate -->
-            <div class="vital-card">
-
-                <h3>🫀 Respiratory Rate</h3>
-
-                <p>
-                    <span id="respiratory-rate">--</span>
-                    breaths/min
-                </p>
-
-            </div>
-
-        </section>
-
-
-        <!-- Emergency Status -->
-        <section
-            id="alert-box"
-            class="alert-box"
-        >
-
-            <h2>Emergency Status</h2>
-
-            <p id="alert-message">
-                Checking patient condition...
-            </p>
-
-        </section>
-
-
-        <!-- Last Updated -->
-        <section class="update-card">
-
-            <p>
-                <strong>Last Updated:</strong>
-                <span id="last-updated">--</span>
-            </p>
-
-        </section>
-
-    </main>
-
-
-    <script>
-
-        async function loadVitals() {
-
-            try {
-
-                const response = await fetch("/api/vitals");
-
-                if (!response.ok) {
-                    throw new Error(
-                        "Server returned status " + response.status
-                    );
-                }
-
-                const data = await response.json();
-
-                /*
-                 * Check that the API returned patient data.
-                 */
-                if (!data.patient) {
-                    throw new Error("Patient data not available");
-                }
-
-                const patient = data.patient;
-
-
-                /*
-                 * Update heart rate
-                 */
-                document.getElementById("heart-rate").textContent =
-                    patient.heart_rate;
-
-
-                /*
-                 * Update SpO2
-                 */
-                document.getElementById("spo2").textContent =
-                    patient.spo2;
-
-
-                /*
-                 * Update temperature
-                 */
-                document.getElementById("temperature").textContent =
-                    patient.temperature;
-
-
-                /*
-                 * Update respiratory rate
-                 */
-                document.getElementById("respiratory-rate").textContent =
-                    patient.respiratory_rate;
-
-
-                /*
-                 * Get status elements
-                 */
-                const status =
-                    document.getElementById("status");
-
-                const alertBox =
-                    document.getElementById("alert-box");
-
-                const alertMessage =
-                    document.getElementById("alert-message");
-
-
-                /*
-                 * Emergency condition
-                 */
-                if (data.emergency === true) {
-
-                    status.textContent = "EMERGENCY";
-
-                    alertMessage.textContent =
-                        "⚠️ " +
-                        (
-                            data.alerts &&
-                            data.alerts.length > 0
-                                ? data.alerts.join(", ")
-                                : "Critical patient condition detected."
-                        );
-
-                    alertBox.classList.add("emergency");
-
-                }
-
-                /*
-                 * Normal condition
-                 */
-                else {
-
-                    status.textContent = "Stable";
-
-                    alertMessage.textContent =
-                        "✅ Patient vital signs are within normal range.";
-
-                    alertBox.classList.remove("emergency");
-
-                }
-
-
-                /*
-                 * Display current time
-                 */
-                const now = new Date();
-
-                document.getElementById("last-updated").textContent =
-                    now.toLocaleTimeString();
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Unable to load patient vitals:",
-                    error
+            alertMessage.textContent =
+                "⚠️ " +
+                (
+                    data.alerts &&
+                    data.alerts.length > 0
+                        ? data.alerts.join(", ")
+                        : "Critical patient condition detected."
                 );
 
-                document.getElementById("status").textContent =
-                    "Connection Error";
+            alertBox.classList.add("emergency");
 
-                document.getElementById("alert-message").textContent =
-                    "❌ Unable to connect to monitoring API.";
+        } else {
 
-            }
+            status.textContent = "Stable";
 
+            alertMessage.textContent =
+                "✅ Patient vital signs are within normal range.";
+
+            alertBox.classList.remove("emergency");
         }
 
 
-        /*
-         * Load data immediately when the page opens.
-         */
-        loadVitals();
+        // -----------------------------
+        // Last updated time
+        // -----------------------------
+
+        document.getElementById("last-updated").textContent =
+            new Date().toLocaleTimeString();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Unable to load patient vitals:",
+            error
+        );
+
+        document.getElementById("status").textContent =
+            "Connection Error";
+
+        document.getElementById("alert-message").textContent =
+            "❌ Unable to connect to monitoring API.";
+    }
+}
 
 
-        /*
-         * Refresh patient vitals every 5 seconds.
-         */
-        setInterval(loadVitals, 5000);
+// ------------------------------------
+// Load vitals when page opens
+// ------------------------------------
 
-    </script>
+loadVitals();
 
-</body>
-</html>
+
+// ------------------------------------
+// Refresh every 5 seconds
+// ------------------------------------
+
+setInterval(loadVitals, 5000);
