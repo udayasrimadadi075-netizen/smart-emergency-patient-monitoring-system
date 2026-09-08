@@ -1,28 +1,79 @@
-async function updateVitals() {
+async function loadVitals() {
     try {
         const response = await fetch("/api/vitals");
-        const data = await response.json();
 
-        document.getElementById("heart").textContent = data.heart_rate;
-        document.getElementById("spo2").textContent = data.spo2;
-        document.getElementById("temperature").textContent = data.temperature;
-
-        const status = document.getElementById("status");
-
-        if (data.emergency) {
-            status.textContent = "⚠️ EMERGENCY: Critical condition detected!";
-            status.className = "status emergency";
-        } else {
-            status.textContent = "✓ Patient condition is normal";
-            status.className = "status normal";
+        if (!response.ok) {
+            throw new Error("Server returned status " + response.status);
         }
 
+        const data = await response.json();
+
+        if (!data.patient) {
+            throw new Error("Patient data not available");
+        }
+
+        const patient = data.patient;
+
+        // Update vital signs
+        document.getElementById("heart-rate").textContent =
+            patient.heart_rate;
+
+        document.getElementById("spo2").textContent =
+            patient.spo2;
+
+        document.getElementById("temperature").textContent =
+            patient.temperature;
+
+        document.getElementById("respiratory-rate").textContent =
+            patient.respiratory_rate;
+
+        // Get status elements
+        const status = document.getElementById("status");
+        const alertBox = document.getElementById("alert-box");
+        const alertMessage = document.getElementById("alert-message");
+
+        // Check emergency condition
+        if (data.emergency === true) {
+            status.textContent = "EMERGENCY";
+
+            alertMessage.textContent =
+                "⚠️ " +
+                (
+                    data.alerts && data.alerts.length > 0
+                        ? data.alerts.join(", ")
+                        : "Critical patient condition detected."
+                );
+
+            alertBox.classList.add("emergency");
+        } else {
+            status.textContent = "Stable";
+
+            alertMessage.textContent =
+                "✅ Patient vital signs are within normal range.";
+
+            alertBox.classList.remove("emergency");
+        }
+
+        // Display current time
+        document.getElementById("last-updated").textContent =
+            new Date().toLocaleTimeString();
+
     } catch (error) {
+        console.error(
+            "Unable to load patient vitals:",
+            error
+        );
+
         document.getElementById("status").textContent =
-            "Unable to connect to monitoring system.";
+            "Connection Error";
+
+        document.getElementById("alert-message").textContent =
+            "❌ Unable to connect to monitoring API.";
     }
 }
 
-updateVitals();
+// Load immediately
+loadVitals();
 
-setInterval(updateVitals, 3000);
+// Refresh every 5 seconds
+setInterval(loadVitals, 5000);
